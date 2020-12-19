@@ -4,8 +4,8 @@ steps:
       - ls
       - find . -name "build-wheel-experimental2.sh"
       - whoami
-    agents:
-      queue: dmitri-wheel-builder-q
+    # agents:
+      # queue: dmitri-wheel-builder-q
     plugins:
       - docker#v3.7.0:
           image: "quay.io/pypa/manylinux2014_x86_64"
