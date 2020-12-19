@@ -1,13 +1,14 @@
 steps:
   - label: "Examine container environment."
     commands:
-      - ls
-      - find . -name "build-wheel-experimental2.sh"
-      - whoami
+      - "echo 'the commit is'"
+      - "echo $BUILDKITE_COMMIT"
     agents:
       queue: dmitri-wheel-build-q
+    # artifact_paths: ".whl/**"
     plugins:
       - docker#v3.7.0:
           image: "quay.io/pypa/manylinux2014_x86_64"
           shell: ["bash", "-e", "-c"]
+          propagate-environment: true
           debug: true
