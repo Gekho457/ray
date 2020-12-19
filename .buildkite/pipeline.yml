@@ -10,3 +10,4 @@ steps:
       - docker#v3.7.0:
           image: "quay.io/pypa/manylinux2014_x86_64"
           shell: ["bash", "-e", "-c"]
+          debug: true
