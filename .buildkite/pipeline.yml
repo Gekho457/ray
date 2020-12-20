@@ -5,12 +5,6 @@ steps:
       BUILDKITE_S3_DEFAULT_REGION: 'us-west-2'
       ANIMAL: dog
     commands:
-      - "mkdir -p .whl"
-      - "touch .whl/test.txt"
-      - "echo $BUILDKITE_COMMIT > .whl/test.txt"
-      - "printenv BUILDKITE_ARTIFACT_UPLOAD_DESTINATION"
-      - "printenv BUILDKITE_S3_DEFAULT_REGION"
-      - "printenv ANIMAL"
     agents:
       queue: dmitri-wheel-build-q
     artifact_paths: ".whl/**"
