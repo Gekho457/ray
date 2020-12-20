@@ -6,7 +6,7 @@ steps:
       - "echo $BUILDKITE_COMMIT > .whl/test.txt"
     agents:
       queue: dmitri-wheel-build-q
-      artifact_paths: ".whl/**"
+    artifact_paths: ".whl/**"
     env:
       BUILDKITE_ARTIFACT_UPLOAD_DESTINATION: "s3://dmitri-k8s-test-wheels/$BUILDKITE_JOB_ID"
       BUILDKITE_S3_DEFAULT_REGION: "us-west-2"
