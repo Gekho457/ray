@@ -75,7 +75,7 @@ for ((i=0; i<${#PYTHONS[@]}; ++i)); do
     # Fix the numpy version because this will be the oldest numpy version we can
     # support.
     /opt/python/"${PYTHON}"/bin/pip install -q numpy=="${NUMPY_VERSION}" cython==0.29.15
-    Set the commit SHA in __init__.py.
+    # Set the commit SHA in __init__.py.
     if [ -n "$BUILDKITE_COMMIT" ]; then
       sed -i.bak "s/{{RAY_COMMIT_SHA}}/$BUILDKITE_COMMIT/g" ray/__init__.py && rm ray/__init__.py.bak
     else
