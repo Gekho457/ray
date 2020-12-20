@@ -5,7 +5,7 @@ steps:
       BUILDKITE_S3_DEFAULT_REGION: 'us-west-2'
       ANIMAL: dog
     commands:
-      - "bash build-linux-wheels.sh"
+      - "bash .buildkite/build-linux-wheels.sh"
     agents:
       queue: dmitri-wheel-build-q
     artifact_paths: ".whl/**"
