@@ -4,15 +4,16 @@ steps:
       - "mkdir -p .whl"
       - "touch .whl/test.txt"
       - "echo $BUILDKITE_COMMIT > .whl/test.txt"
+      - "echo $BUILDKITE_ARTIFACT_UPLOAD_DESTINATION"
     agents:
       queue: dmitri-wheel-build-q
     artifact_paths: ".whl/**"
     # env:
       # BUILDKITE_ARTIFACT_UPLOAD_DESTINATION: "s3://dmitri-k8s-test-wheels/"
       # BUILDKITE_S3_DEFAULT_REGION: "us-west-2"
-    plugins:
-      - docker#v3.7.0:
-          image: "quay.io/pypa/manylinux2014_x86_64"
-          shell: ["bash", "-e", "-c"]
-          propagate-environment: true
-          debug: true
+    # plugins:
+      # - docker#v3.7.0:
+          # image: "quay.io/pypa/manylinux2014_x86_64"
+          # shell: ["bash", "-e", "-c"]
+          # propagate-environment: true
+          # debug: true
