@@ -17,9 +17,9 @@ steps:
           # propagate-environment: true
           # debug: true
     env:
-      BUILDKITE_ARTIFACT_UPLOAD_DESTINATION: "s3://dmitri-k8s-test-wheels/"
-      BUILDKITE_S3_DEFAULT_REGION: "us-west-2"
-      ANIMAL: "dog"
+      BUILDKITE_ARTIFACT_UPLOAD_DESTINATION: 's3://dmitri-k8s-test-wheels/'
+      BUILDKITE_S3_DEFAULT_REGION: 'us-west-2'
+      ANIMAL: 'dog'
 
   # BUILDKITE_ARTIFACT_UPLOAD_DESTINATION
   # BUILDKITE_ARTIFACT_UPLOAD_DESTINATION
