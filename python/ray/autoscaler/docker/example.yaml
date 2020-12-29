@@ -96,13 +96,14 @@ head_start_ray_commands:
   - ray stop
   - ray start --head --port=6379 --autoscaling-config=/home/ray/ray_bootstrap_config.yaml
 
-
 worker_start_ray_commands:
   - ray stop
   - ray start --address=$RAY_HEAD_IP:6379
+
 initialization_commands: []
 setup_commands: []
 worker_setup_commands: []
 cluster_synced_files: []
 file_mounts: {}
 head_node: {}
+worker_nodes: {}
