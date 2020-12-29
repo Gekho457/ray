@@ -18,6 +18,9 @@ from .command_runner import DockerLocalCommandRunner
 logger = logging.getLogger(__name__)
 log_prefix = "DockerLocalNodeProvider: "
 
+# Silence filelock logging.
+logging.getLogger("py-filelock.filelock").setLevel(logging.ERROR)
+
 
 def container_status(node_id):
     try:
