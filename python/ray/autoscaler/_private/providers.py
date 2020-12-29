@@ -12,6 +12,11 @@ logger = logging.getLogger(__name__)
 _provider_instances = {}
 
 
+def _import_docker(provider_config):
+    from ray.autoscaler.docker.node_provider import DockerLocalNodeProvider
+    return DockerLocalNodeProvider
+
+
 def _import_aws(provider_config):
     from ray.autoscaler._private.aws.node_provider import AWSNodeProvider
     return AWSNodeProvider
@@ -48,6 +53,12 @@ def _import_staroid(provider_config):
     from ray.autoscaler._private.staroid.node_provider import \
         StaroidNodeProvider
     return StaroidNodeProvider
+
+
+# TESTING ONLY!
+def _load_docker_defaults_config():
+    import ray.autoscaler.docker as ray_docker
+    return os.path.join(os.path.dirname(ray_docker.__file__), "defaults.yaml")
 
 
 def _load_local_defaults_config():
@@ -87,6 +98,7 @@ def _import_external(provider_config):
 
 
 _NODE_PROVIDERS = {
+    "docker": _import_docker,  # LOCAL TESTING ONLY!!!!
     "local": _import_local,
     "aws": _import_aws,
     "gcp": _import_gcp,
@@ -97,6 +109,7 @@ _NODE_PROVIDERS = {
 }
 
 _PROVIDER_PRETTY_NAMES = {
+    "docker": "Docker",  # TESTING ONLY!
     "local": "Local",
     "aws": "AWS",
     "gcp": "GCP",
@@ -107,6 +120,7 @@ _PROVIDER_PRETTY_NAMES = {
 }
 
 _DEFAULT_CONFIGS = {
+    "docker": _load_docker_defaults_config,  # TESTING ONLY!
     "local": _load_local_defaults_config,
     "aws": _load_aws_defaults_config,
     "gcp": _load_gcp_defaults_config,

@@ -1,0 +1,100 @@
+provider:
+  type: docker
+
+# An unique identifier for the head node and workers of this cluster.
+# For DockerLocalNodeProvider will add a ray-cluster-name label to each
+# container in the cluster.
+# Run `docker ps -f label=ray-cluster-name=<cluster_name>` to view
+# running Ray node containers in the cluster.
+# (Or run the following in a Python session:
+# `provider = DockerLocalNodeProvider(<cluster_name>,{}); provider.nonterminated_nodes({})`
+# .)
+cluster_name: example
+
+# The maximum number of workers nodes to launch in addition to the head
+# node. This takes precedence over min_workers.
+max_workers: 2
+
+# The autoscaler will scale up the cluster faster with higher upscaling speed.
+# E.g., if the task requires adding more nodes then autoscaler will gradually
+# scale up the cluster in chunks of upscaling_speed*currently_running_nodes.
+# This number should be > 0.
+upscaling_speed: 1.0
+
+# If a node is idle for this many minutes, it will be removed.
+idle_timeout_minutes: 5
+
+available_node_types:
+  worker:
+    min_workers: 1
+    max_workers: 2
+    resources: {"CPU": 1}
+    # node_config is used in DockerLocalNodeProvider.create_node().
+    # The fields can be any valid collection of keyword arguments to the Docker
+    # Python client's containers.run() method.
+    node_config:
+      image: rayproject/ray:nightly
+      mem_limit: 2g
+      # The shm_size should be at least 30% of mem_limit for the object store to work properly.
+      shm_size: 700m
+      # Limit of 1 CPU. (See https://docs.docker.com/config/containers/resource_constraints/#cpu.)
+      cpu_quota: 100000
+      # Run command in background
+      detach: true
+      # Keep the container running until explicitly stopped
+      command: ["/bin/bash", "-c", "--", "trap : TERM INT; sleep infinity & wait;"]
+      # Delete container when it is stopped.
+      remove: true
+  head:
+    resources: {"CPU": 1}
+    node_config:
+      image: rayproject/ray:nightly
+      mem_limit: 2g
+      # The shm_size should be at least 30% of mem_limit for the object store to work properly.
+      shm_size: 700m
+      # Limit of 1 CPU. (See https://docs.docker.com/config/containers/resource_constraints/#cpu.)
+      cpu_quota: 100000
+      # Run command in background.
+      detach: true
+      # Keep the container running until explicitly stopped.
+      command: ["/bin/bash", "-c", "--", "trap : TERM INT; sleep infinity & wait;"] 
+      # Delete container when it is stopped.
+      remove: true
+      # Need this for autoscaler to use Docker.
+      volumes:
+        /var/run/docker.sock:
+          bind: /var/run/docker.sock
+          mount: rw
+      # Sidestep macOS-related permissions issues when accessing docker socket from the head container.
+      # (There are probably better solutions.)
+      user: root
+
+head_node_type: head
+worker_default_node_type: worker
+
+# Set up Docker for autoscaler.
+head_setup_commands:
+  - sudo apt-get update && sudo apt-get install curl systemctl -y
+  - curl -fsSL https://get.docker.com > tmp/get-docker.sh && sudo sh tmp/get-docker.sh
+  # First part of next command not necessary in this setup -- just kept for reference.
+  - sudo usermod -aG docker $(whoami) && sudo service docker start
+  - pip install docker
+  # Solely for testing purposes: the following branch of Dmitri's fork of the oss repo contains
+  # the DockerLocalNodeProvider.
+  - git clone --single-branch --branch dmitri/DockerNodeProvider https://github.com/DmitriGekhtman/ray
+  - python ray/python/ray/setup-dev.py --yes
+
+head_start_ray_commands:
+  - ray stop
+  - ray start --head --port=6379 --autoscaling-config=/home/ray/ray_bootstrap_config.yaml
+
+
+worker_start_ray_commands:
+  - ray stop
+  - ray start --address=$RAY_HEAD_IP:6379
+initialization_commands: []
+setup_commands: []
+worker_setup_commands: []
+cluster_synced_files: []
+file_mounts: {}
+head_node: {}
