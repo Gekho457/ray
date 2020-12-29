@@ -151,7 +151,7 @@ class DockerLocalNodeProvider(NodeProvider):
 
     def internal_ip(self, node_id: str) -> str:
         """Returns the internal ip (Ray ip) of the given node."""
-        container_info = client().api.inspect_container("node_id")
+        container_info = client().api.inspect_container(node_id)
         return container_info["NetworkSettings"]["Networks"]["bridge"][
             "IPAddress"]
 
