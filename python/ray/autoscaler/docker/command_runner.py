@@ -29,12 +29,9 @@ class DockerLocalCommandRunner(CommandRunnerInterface):
             environment_variables=None,
             run_env="auto",
             ssh_options_override_ssh_key="",
-            shutdown_after_run=False,
-            tty=True):
+            shutdown_after_run=False):
         if environment_variables:
             cmd = _with_environment_variables(cmd, environment_variables)
-        if shutdown_after_run:
-            cmd += "; sudo shutdown -h now"
         final_cmd = with_bash(cmd)
 
         logger.info(self.log_prefix + "Running \"{}\" in container {}.".format(
@@ -42,7 +39,7 @@ class DockerLocalCommandRunner(CommandRunnerInterface):
         container = client().containers.get(self.node_id)
         # TODO(dmitri): Probably should configure args passed to exec_run more
         # carefully. Refine this later, if needed.
-        exit_code, output = container.exec_run(final_cmd, tty=True)
+        exit_code, output = container.exec_run(final_cmd)
         if exit_code != 0:
             logger.error(self.log_prefix + "Docker exec command failed. See "
                          "command output below.")
