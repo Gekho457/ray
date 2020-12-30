@@ -13,7 +13,8 @@ _provider_instances = {}
 
 
 def _import_docker(provider_config):
-    from ray.autoscaler.docker.node_provider import DockerLocalNodeProvider
+    from ray.autoscaler.docker_local.node_provider import \
+        DockerLocalNodeProvider
     return DockerLocalNodeProvider
 
 
@@ -57,7 +58,7 @@ def _import_staroid(provider_config):
 
 # TESTING ONLY!
 def _load_docker_defaults_config():
-    import ray.autoscaler.docker as ray_docker
+    import ray.autoscaler.docker_local as ray_docker
     return os.path.join(os.path.dirname(ray_docker.__file__), "defaults.yaml")
 
 
