@@ -1,5 +1,5 @@
 provider:
-  type: docker
+  type: docker-local
 
 # An unique identifier for the head node and workers of this cluster.
 # For DockerLocalNodeProvider will add a ray-cluster-name label to each

@@ -47,7 +47,7 @@ class DockerLocalCommandRunner(CommandRunnerInterface):
             if exit_on_fail:
                 sys.exit(1)
         # TODO(dmitri): Container stdout and stderr are printed to stdout.
-        # Refined this later, if needed.
+        # Refine this later, if needed.
         print(output.decode())
 
         if with_output:
