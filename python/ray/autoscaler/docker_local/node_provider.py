@@ -183,12 +183,12 @@ class DockerLocalNodeProvider(NodeProvider):
         # TODO (Dmitri) : Get rid of this when we add logic to run autoscaler
         # outside of container.
         if tags[TAG_RAY_NODE_KIND] == NODE_KIND_HEAD:
-            tag_mounts = get_head_mounts(DOCKER_SOCKET,
-                                         self.tag_manager.tag_path,
-                                         self.tag_manager.lock_path)
+            head_mounts = get_head_mounts(DOCKER_SOCKET,
+                                          self.tag_manager.tag_path,
+                                          self.tag_manager.lock_path)
             if "volumes" not in docker_run_kwargs:
                 docker_run_kwargs["volumes"] = {}
-            docker_run_kwargs["volumes"].update(tag_mounts)
+            docker_run_kwargs["volumes"].update(head_mounts)
 
         for _ in range(count):
             container = client().containers.run(**docker_run_kwargs)
