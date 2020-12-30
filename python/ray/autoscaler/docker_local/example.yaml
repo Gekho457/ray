@@ -67,11 +67,11 @@ available_node_types:
           mount: rw
       # Mount node tags (cluster-<cluster-name> in all four files below must match the cluster name)
       # (This is hideous and it would preferable to just have the autoscaler running outside of containers.)
-        /tmp/ray_docker_local/cluster-example.tags:
-          bind: /tmp/ray_docker_local/cluster-example.tags
+        /tmp/ray_docker_local_cluster-example.tags:
+          bind: /tmp/ray_docker_local_cluster-example.tags
           mount: rw
-        /tmp/ray_docker_local/cluster-example.lock:
-          bind: /tmp/ray_docker_local/cluster-example.lock
+        /tmp/ray_docker_local_cluster-example.lock:
+          bind: /tmp/ray_docker_local_cluster-example.lock
           mount: rw
       # Sidestep macOS-related permissions issues when accessing docker socket from head container.
       # (There are probably better solutions. Also, see above comment about not running the autoscaler on the head node.)

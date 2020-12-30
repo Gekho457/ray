@@ -51,7 +51,8 @@ def get_docker_run_kwargs(node_config, cluster_name):
     return kwargs
 
 
-TAG_PATH = "/tmp/ray_docker_local"
+TAGS_PATH_TEMPLATE = "/tmp/ray_docker_local_cluster-{}.tags"
+LOCK_PATH_TEMPLATE = "/tmp/ray_docker_local_cluster-{}.lock"
 
 
 class DockerLocalNodeTags():
@@ -61,10 +62,8 @@ class DockerLocalNodeTags():
     """
 
     def __init__(self, cluster_name):
-        if not os.path.exists(TAG_PATH):
-            os.mkdir(TAG_PATH)
-        self.tag_path = os.path.join(TAG_PATH, f"cluster-{cluster_name}.tags")
-        lock_path = os.path.join(TAG_PATH, f"cluster-{cluster_name}.lock")
+        self.tag_path = TAGS_PATH_TEMPLATE.format(cluster_name)
+        lock_path = LOCK_PATH_TEMPLATE.format(cluster_name)
 
         # Locks file operations between threads in a single process.
         self.lock = threading.Lock()
