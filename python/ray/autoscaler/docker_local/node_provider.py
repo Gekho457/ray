@@ -9,7 +9,9 @@ from typing import Any, Dict, List, Optional
 import docker
 import yaml
 
-from ray.autoscaler.tags import TAG_RAY_CLUSTER_NAME
+from ray.autoscaler.tags import (TAG_RAY_CLUSTER_NAME, TAG_RAY_NODE_KIND,
+                                 NODE_KIND_HEAD)
+
 from ray.autoscaler.command_runner import CommandRunnerInterface
 from ray.autoscaler.node_provider import NodeProvider
 from . import client
@@ -51,6 +53,18 @@ def get_docker_run_kwargs(node_config, cluster_name):
     return kwargs
 
 
+# TODO (Dmitri) : Get rid of this  when we add logic to run autoscaler
+# outside of container.
+DOCKER_SOCKET = "/var/run/docker.sock"
+
+
+def get_head_mounts(*paths):
+    head_mounts = {}
+    for path in paths:
+        head_mounts.update({path: {"bind": path, "mount": "rw"}})
+    return head_mounts
+
+
 TAGS_PATH_TEMPLATE = "/tmp/ray_docker_local_cluster-{}.tags"
 LOCK_PATH_TEMPLATE = "/tmp/ray_docker_local_cluster-{}.lock"
 
@@ -63,12 +77,12 @@ class DockerLocalNodeTags():
 
     def __init__(self, cluster_name):
         self.tag_path = TAGS_PATH_TEMPLATE.format(cluster_name)
-        lock_path = LOCK_PATH_TEMPLATE.format(cluster_name)
+        self.lock_path = LOCK_PATH_TEMPLATE.format(cluster_name)
 
         # Locks file operations between threads in a single process.
         self.lock = threading.Lock()
         # Locks file operations between processes.
-        self.file_lock = filelock.FileLock(lock_path)
+        self.file_lock = filelock.FileLock(self.lock_path)
 
         with self.lock, self.file_lock:
             if not os.path.exists(self.tag_path):
@@ -165,6 +179,16 @@ class DockerLocalNodeProvider(NodeProvider):
         docker_run_kwargs = copy.deepcopy(node_config)
         cluster_label = {TAG_RAY_CLUSTER_NAME: self.cluster_name}
         docker_run_kwargs.update({"labels": cluster_label})
+
+        # TODO (Dmitri) : Get rid of this when we add logic to run autoscaler
+        # outside of container.
+        if tags[TAG_RAY_NODE_KIND] == NODE_KIND_HEAD:
+            tag_mounts = get_head_mounts(DOCKER_SOCKET,
+                                         self.tag_manager.tag_path,
+                                         self.tag_manager.lock_path)
+            if "volumes" not in docker_run_kwargs:
+                docker_run_kwargs["volumes"] = {}
+            docker_run_kwargs["volumes"].update(tag_mounts)
 
         for _ in range(count):
             container = client().containers.run(**docker_run_kwargs)
