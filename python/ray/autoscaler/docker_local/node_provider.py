@@ -1,12 +1,12 @@
 import copy
-import filelock
+import filelock  # type: ignore
 import logging
 import os
 import threading
 from types import ModuleType
 from typing import Any, Dict, List, Optional
 
-import docker
+import docker  # type: ignore
 import yaml
 
 from ray.autoscaler.tags import (TAG_RAY_CLUSTER_NAME, TAG_RAY_NODE_KIND,
@@ -24,15 +24,15 @@ log_prefix = "DockerLocalNodeProvider: "
 logging.getLogger("filelock").setLevel(logging.ERROR)
 
 
-def container_status(node_id):
+def container_status(node_id: str) -> str:
     try:
         container = client().containers.get(node_id)
-        return container.status
+        return container.status  # type: ignore
     except docker.errors.NotFound:
         return "not found"
 
 
-def stop_container(node_id):
+def stop_container(node_id: str) -> None:
     try:
         container = client().containers.get(node_id)
         container.stop()
@@ -41,7 +41,8 @@ def stop_container(node_id):
                     f"{node_id}, but no container with that name was found.")
 
 
-def get_docker_run_kwargs(node_config, cluster_name):
+def get_docker_run_kwargs(node_config: Dict[str, Any],
+                          cluster_name: str) -> Dict[str, Any]:
     """Converts node_config into a dict of keyword arguments to be passed to
     docker run in DockerLocalNodeProvider.create_node().
 
@@ -58,7 +59,7 @@ def get_docker_run_kwargs(node_config, cluster_name):
 DOCKER_SOCKET = "/var/run/docker.sock"
 
 
-def get_head_mounts(*paths):
+def get_head_mounts(*paths: str) -> Dict[str, Any]:
     head_mounts = {}
     for path in paths:
         head_mounts.update({path: {"bind": path, "mount": "rw"}})
@@ -75,7 +76,7 @@ class DockerLocalNodeTags():
     Maintains a temp file with {container name: tags} mapping in yaml format.
     """
 
-    def __init__(self, cluster_name):
+    def __init__(self, cluster_name: str) -> None:
         self.tag_path = TAGS_PATH_TEMPLATE.format(cluster_name)
         self.lock_path = LOCK_PATH_TEMPLATE.format(cluster_name)
 
@@ -88,11 +89,11 @@ class DockerLocalNodeTags():
             if not os.path.exists(self.tag_path):
                 self._write({})
 
-    def get(self, node_id):
+    def get(self, node_id: str) -> Dict[str, str]:
         with self.lock, self.file_lock:
             return self._read()[node_id]
 
-    def set(self, node_id, tags):
+    def set(self, node_id: str, tags: Dict[str, str]) -> None:
         with self.lock, self.file_lock:
             all_tags = self._read()
             if node_id not in all_tags:
@@ -100,7 +101,7 @@ class DockerLocalNodeTags():
             all_tags[node_id].update(tags)
             self._write(all_tags)
 
-    def delete(self, node_id):
+    def delete(self, node_id: str) -> None:
         with self.lock, self.file_lock:
             all_tags = self._read()
             try:
@@ -111,11 +112,11 @@ class DockerLocalNodeTags():
                     f"id {node_id}, but the node's tags are already gone.")
             self._write(all_tags)
 
-    def _read(self):
+    def _read(self) -> Dict[str, Dict[str, str]]:
         with open(self.tag_path, "r") as tag_file:
-            return yaml.safe_load(tag_file)
+            return yaml.safe_load(tag_file)  # type: ignore
 
-    def _write(self, all_tags):
+    def _write(self, all_tags: Dict[str, Dict[str, str]]) -> None:
         with open(self.tag_path, "w") as tag_file:
             yaml.dump(all_tags, tag_file, default_flow_style=False)
 
@@ -169,7 +170,7 @@ class DockerLocalNodeProvider(NodeProvider):
         """Returns the internal ip (Ray ip) of the given node."""
         container_info = client().api.inspect_container(node_id)
         return container_info["NetworkSettings"]["Networks"]["bridge"][
-            "IPAddress"]
+            "IPAddress"]  # type: ignore
 
     def create_node(self, node_config: Dict[str, Any], tags: Dict[str, str],
                     count: int) -> None:
